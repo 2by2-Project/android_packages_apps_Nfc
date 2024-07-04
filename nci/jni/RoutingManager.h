@@ -46,6 +46,47 @@ class RoutingManager {
   int registerJniFunctions(JNIEnv* e);
   bool setNfcSecure(bool enable);
   void updateRoutingTable();
+
+    /*void getRouting(uint16_t* routeLen, uint8_t* routingBuff);
+    void processGetRoutingRsp(tNFA_DM_CBACK_DATA* eventData);*/
+    uint16_t getUiccRouteLocId(const int route);
+    /*static const int NFA_SET_AID_ROUTING = 4;
+    static const int NFA_SET_TECHNOLOGY_ROUTING = 1;
+    static const int NFA_SET_PROTOCOL_ROUTING = 2;
+    // Fixed power states masks
+    static const int PWR_SWTCH_ON_SCRN_UNLCK_MASK = 0x01;
+    static const int PWR_SWTCH_OFF_MASK = 0x02;
+    static const int PWR_BATT_OFF_MASK = 0x04;
+    static const int PWR_SWTCH_ON_SCRN_LOCK_MASK = 0x10;
+    static const int PWR_SWTCH_ON_SCRN_OFF_MASK = 0x08;
+    static const int PWR_SWTCH_ON_SCRN_OFF_LOCK_MASK = 0x20;
+    static const int POWER_STATE_MASK = 0xFF;
+    static const int HOST_SCREEN_STATE_MASK = 0x09;
+    void registerProtoRouteEnrty(tNFA_HANDLE ee_handle,
+                                 tNFA_PROTOCOL_MASK  protocols_switch_on,
+                                 tNFA_PROTOCOL_MASK  protocols_switch_off,
+                                 tNFA_PROTOCOL_MASK  protocols_battery_off,
+                                 tNFA_PROTOCOL_MASK  protocols_screen_lock,
+                                 tNFA_PROTOCOL_MASK  protocols_screen_off,
+                                 tNFA_PROTOCOL_MASK  protocols_screen_off_lock
+                                 );
+    bool setRoutingEntry(int type, int value, int route, int power);
+    bool clearAidTable ();
+    void setEmptyAidEntry(int route);
+    void processTechEntriesForFwdfunctionality(void);
+    void configureOffHostNfceeTechMask(void);
+    void configureEeRegister(bool eeReg);
+    void dumpTables(int);
+    tNFA_HANDLE checkAndUpdateAltRoute(int& routeLoc);
+    tNFA_HANDLE getNfaHandle(uint16_t routeLoc);
+    void notifyAllEvents();
+*/
+    uint32_t getUicc2selected();
+    //bool isNfceeActive(int routeLoc, tNFA_HANDLE& ActDevHandle);
+    //uint16_t sRoutingBuffLen;
+    //uint8_t* sRoutingBuff;
+    //SyncEvent       sNfaGetRoutingEvent;
+
   void eeSetPwrAndLinkCtrl(uint8_t config);
   void updateIsoDepProtocolRoute(int route);
   tNFA_TECHNOLOGY_MASK updateTechnologyABRoute(int route);

@@ -32,6 +32,10 @@
 #include "nfa_ee_api.h"
 #include "nfc_config.h"
 
+#include "MposManager.h"
+#include "NativeJniExtns.h"
+#include "SecureElement.h"
+
 using android::base::StringPrintf;
 
 extern bool gActivated;
