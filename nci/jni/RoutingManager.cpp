@@ -37,6 +37,8 @@ using android::base::StringPrintf;
 extern bool gActivated;
 extern SyncEvent gDeactivatedEvent;
 
+static RouteInfo_t gRouteInfo;
+
 const JNINativeMethod RoutingManager::sMethods[] = {
     {"doGetDefaultRouteDestination", "()I",
      (void*)RoutingManager::
@@ -149,6 +151,35 @@ bool RoutingManager::initialize(nfc_jni_native_data* native) {
     mEeRegisterEvent.wait();
   }
 
+//#if (NXP_EXTNS == TRUE)
+    memset(&gRouteInfo, 0x00, sizeof(RouteInfo_t));
+
+    mHostListenTechMask = NfcConfig::getUnsigned(NAME_HOST_LISTEN_TECH_MASK, 0x03);
+
+    LOG(INFO) << StringPrintf("%s: mHostListenTechMask=0x%X", fn,mHostListenTechMask);
+
+    mFwdFuntnEnable = NfcConfig::getUnsigned(NAME_FORWARD_FUNCTIONALITY_ENABLE, 0x00);
+    LOG(INFO) << StringPrintf("%s: mFwdFuntnEnable=0x%X", fn,mFwdFuntnEnable);
+
+    mDefaultTechFPowerstate = NfcConfig::getUnsigned(NAME_DEFAULT_FELICA_CLT_PWR_STATE, 0x3F);
+
+    mDefaultEe = NfcConfig::getUnsigned(NAME_NXP_DEFAULT_SE, 0x01);
+
+    mUiccListenTechMask = NfcConfig::getUnsigned(NAME_UICC_LISTEN_TECH_MASK, 0x07);
+
+    mDefaultFelicaRoute = NfcConfig::getUnsigned(NAME_DEFAULT_FELICA_CLT_ROUTE, 0x00);
+
+    mDefaultOffHostRoute = NfcConfig::getUnsigned(NAME_DEFAULT_OFFHOST_ROUTE, 0x00);
+
+    mDefaultSysCodePowerstate = NfcConfig::getUnsigned(
+        NAME_DEFAULT_SYS_CODE_PWR_STATE,
+        (PWR_SWTCH_ON_SCRN_UNLCK_MASK | PWR_SWTCH_ON_SCRN_LOCK_MASK |
+         PWR_SWTCH_ON_SCRN_OFF_MASK));
+
+    LOG(INFO) << StringPrintf("%s: >>>> mDefaultFelicaRoute=0x%X", fn, mDefaultFelicaRoute);
+    LOG(INFO) << StringPrintf("%s: >>>> mDefaultEe=0x%X", fn, mDefaultEe);
+    LOG(INFO) << StringPrintf("%s: >>>> mDefaultOffHostRoute=0x%X", fn, mDefaultOffHostRoute);
+//#endif
   if ((mDefaultOffHostRoute != 0) || (mDefaultFelicaRoute != 0)) {
     // Wait for EE info if needed
     SyncEventGuard guard(mEeInfoEvent);
@@ -157,8 +188,12 @@ bool RoutingManager::initialize(nfc_jni_native_data* native) {
       mEeInfoEvent.wait();
     }
   }
+//#if (NXP_EXTNS != TRUE)
   mSeTechMask = updateEeTechRouteSetting();
-
+//#endif
+//#if (NXP_EXTNS == TRUE)
+  if (mHostListenTechMask) {
+//#endif
   // Set the host-routing Tech
   tNFA_STATUS nfaStat = NFA_CeSetIsoDepListenTech(
       mHostListenTechMask & (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_B));
@@ -170,9 +205,13 @@ bool RoutingManager::initialize(nfc_jni_native_data* native) {
   nfaStat = NFA_CeRegisterAidOnDH(NULL, 0, stackCallback);
   if (nfaStat != NFA_STATUS_OK)
     LOG(ERROR) << fn << "Failed to register wildcard AID for DH";
-
+//#if (NXP_EXTNS == TRUE)
+  }
+//#endif
   updateDefaultRoute();
+//#if (NXP_EXTNS != TRUE)
   updateDefaultProtocolRoute();
+//#endif
 
   return true;
 }

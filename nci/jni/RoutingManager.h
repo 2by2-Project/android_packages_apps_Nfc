@@ -29,6 +29,21 @@
 
 using namespace std;
 
+typedef struct protoroutInfo {
+    uint16_t ee_handle;
+    tNFA_PROTOCOL_MASK  protocols_switch_on;
+    tNFA_PROTOCOL_MASK  protocols_switch_off;
+    tNFA_PROTOCOL_MASK  protocols_battery_off;
+    tNFA_PROTOCOL_MASK  protocols_screen_lock;
+    tNFA_PROTOCOL_MASK  protocols_screen_off;
+    tNFA_PROTOCOL_MASK  protocols_screen_off_lock;
+}ProtoRoutInfo_t;
+
+typedef struct routeInfo {
+    uint8_t num_entries;
+    ProtoRoutInfo_t protoInfo[4];
+}RouteInfo_t;
+
 class RoutingManager {
  public:
   static RoutingManager& getInstance();
@@ -46,6 +61,11 @@ class RoutingManager {
   int registerJniFunctions(JNIEnv* e);
   bool setNfcSecure(bool enable);
   void updateRoutingTable();
+  // Fixed power states masks
+  static const int PWR_SWTCH_ON_SCRN_UNLCK_MASK = 0x01;
+  static const int PWR_SWTCH_ON_SCRN_LOCK_MASK = 0x10;
+  static const int PWR_SWTCH_ON_SCRN_OFF_MASK = 0x08;
+  static const int PWR_SWTCH_ON_SCRN_OFF_LOCK_MASK = 0x20;
   void eeSetPwrAndLinkCtrl(uint8_t config);
   void updateIsoDepProtocolRoute(int route);
   tNFA_TECHNOLOGY_MASK updateTechnologyABRoute(int route);
@@ -117,6 +137,9 @@ class RoutingManager {
   uint8_t mDefaultSysCodePowerstate;
   uint8_t mOffHostAidRoutingPowerState;
   uint8_t mHostListenTechMask;
+  int mUiccListenTechMask;
+  int mFwdFuntnEnable;
+  uint32_t mDefaultTechFPowerstate;
   uint8_t mOffHostListenTechMask;
   bool mDeinitializing;
   bool mEeInfoChanged;
