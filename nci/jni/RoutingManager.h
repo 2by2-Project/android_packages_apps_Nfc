@@ -61,6 +61,8 @@ class RoutingManager {
   int registerJniFunctions(JNIEnv* e);
   bool setNfcSecure(bool enable);
   void updateRoutingTable();
+    uint16_t getUiccRouteLocId(const int route);
+    uint32_t getUicc2selected();
   // Fixed power states masks
   static const int PWR_SWTCH_ON_SCRN_UNLCK_MASK = 0x01;
   static const int PWR_SWTCH_ON_SCRN_LOCK_MASK = 0x10;

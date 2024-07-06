@@ -25,6 +25,9 @@ cc_library_shared {
         "system/nfc/src/gki/ulinux",
         "system/nfc/src/gki/common",
         "system/nfc/utils/include",
+        "hardware/nxp/nfc/snxxx/halimpl/utils",
+        "hardware/nxp/nfc/snxxx/halimpl/hal",
+        "hardware/nxp/nfc/snxxx/halimpl/common",
     ],
 
     shared_libs: [

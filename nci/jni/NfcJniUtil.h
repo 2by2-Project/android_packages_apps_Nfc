@@ -84,6 +84,8 @@
 #define NFCSTATUS_SUCCESS (0x0000)
 #define NFCSTATUS_FAILED (0x00FF)
 
+#define NFC_CMD_TIMEOUT 2000 /* 2 sec timeout to wait on the semaphore for the response of command sent*/
+
 /* Pre-defined route type values. These must match the values in
  * RoutingManager.cpp.
  */

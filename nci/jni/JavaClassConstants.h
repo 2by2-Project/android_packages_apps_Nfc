@@ -34,4 +34,17 @@ extern jmethodID gCachedNfcManagerNotifyWlcStopped;
 extern const char* gNativeP2pDeviceClassName;
 extern const char* gNativeNfcTagClassName;
 extern const char* gNativeNfcManagerClassName;
+
+extern const char* gNativeNfcSecureElementClassName;
+extern jmethodID gCachedNfcManagerNotifySeListenDeactivated;
+extern jmethodID gCachedNfcManagerNotifySeListenActivated;
+extern jmethodID gCachedNfcManagerNotifyRfFieldDeactivated;
+extern jmethodID gCachedNfcManagerNotifyRfFieldActivated;
+//extern const char* gNativeNfcMposManagerClassName;
+//extern const char* gNativeT4tNfceeClassName;
+extern const char* gNativeExtFieldDetectClassName;
+/*extern jmethodID gCachedNfcManagerNotifyLxDebugInfo;
+extern jmethodID  gCachedNfcManagerNotifySrdEvt;
+extern jmethodID gCachedNfcManagerNotifyEfdmEvt;
+extern jmethodID gCachedNfcManagerNotifyTagAbortListeners;*/
 }  // namespace android

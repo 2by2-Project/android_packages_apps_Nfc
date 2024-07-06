@@ -34,6 +34,7 @@ class HciEventManager {
   void notifyTransactionListenersOfAid(std::vector<uint8_t> aid,
                                        std::vector<uint8_t> data,
                                        std::string evtSrc);
+ public:
   static void nfaHciCallback(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* eventData);
 
  public:

@@ -36,6 +36,17 @@
 #include "PowerSwitch.h"
 #include "RoutingManager.h"
 #include "SyncEvent.h"
+
+//#include "DwpChannel.h"
+#include "MposManager.h"
+#include "NativeExtFieldDetect.h"
+#include "NativeJniExtns.h"
+//#include "NativeT4tNfcee.h"
+//#include "NfcSelfTest.h"
+//#include "NfcTagExtns.h"
+#include "SecureElement.h"
+//#include "nfa_nfcee_int.h"
+
 #include "android_nfc.h"
 #include "ce_api.h"
 #include "debug_lmrt.h"
@@ -766,6 +777,12 @@ void nfaDeviceManagementCallback(uint8_t dmEvent,
       LOG(DEBUG) << StringPrintf(
           "%s: NFA_DM_RF_FIELD_EVT; status=0x%X; field status=%u", __func__,
           eventData->rf_field.status, eventData->rf_field.rf_field_status);
+      if (extFieldDetectMode.isextendedFieldDetectMode() &&
+          (eventData->rf_field.rf_field_status == NFA_DM_RF_FIELD_ON)) {
+        extFieldDetectMode.startEfdmTimer();
+      }
+      SecureElement::getInstance().notifyRfFieldEvent (
+                    eventData->rf_field.rf_field_status == NFA_DM_RF_FIELD_ON);
       if (!sP2pActive && eventData->rf_field.status == NFA_STATUS_OK) {
         struct nfc_jni_native_data* nat = getNative(NULL, NULL);
         if (!nat) {
