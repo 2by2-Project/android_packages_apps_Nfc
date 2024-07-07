@@ -38,6 +38,7 @@
 //#endif
 
 #include "Nxp_Features.h"
+#include "NxpNfcCapability.cc"
 
 using android::base::StringPrintf;
 

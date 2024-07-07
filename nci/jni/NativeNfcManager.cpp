@@ -115,6 +115,8 @@ const char* gNativeP2pDeviceClassName =
 const char* gNativeNfcTagClassName = "com/android/nfc/dhimpl/NativeNfcTag";
 const char* gNativeNfcManagerClassName =
     "com/android/nfc/dhimpl/NativeNfcManager";
+const char* gNativeExtFieldDetectClassName =
+    "com/android/nfc/dhimpl/NativeExtFieldDetectManager";
 const char* gNfcVendorNciResponseClassName =
     "com/android/nfc/NfcVendorNciResponse";
 void doStartupConfig();
