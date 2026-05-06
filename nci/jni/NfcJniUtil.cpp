@@ -28,6 +28,12 @@
 
 using android::base::StringPrintf;
 
+
+// 2by2 Additions for felica
+namespace android {
+int register_com_android_nfc_NativeFelicaSe(JNIEnv* e);
+}  // namespace android
+
 /*******************************************************************************
 **
 ** Function:        JNI_OnLoad
@@ -51,6 +57,10 @@ jint JNI_OnLoad(JavaVM* jvm, void*) {
   if (android::register_com_android_nfc_NativeNfcManager(e) == -1)
     return JNI_ERR;
   if (android::register_com_android_nfc_NativeT4tNfcee(e) == -1) return JNI_ERR;
+
+  // 2by2 Additions for felica
+  if (android::register_com_android_nfc_NativeFelicaSe(e) == -1) return JNI_ERR;
+
   if (android::register_com_android_nfc_NativeNfcTag(e) == -1) return JNI_ERR;
   if (RoutingManager::getInstance().registerJniFunctions(e) == -1)
     return JNI_ERR;

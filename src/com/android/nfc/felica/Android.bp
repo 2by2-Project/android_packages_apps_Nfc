@@ -1,0 +1,9 @@
+//
+// Copyright (C) 2026 The 2by2 Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+filegroup {
+    name: "nfc-felica-aidl",
+    srcs: ["aidl/**/*.aidl"],
+}

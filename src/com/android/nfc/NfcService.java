@@ -441,6 +441,10 @@ public class NfcService implements DeviceHostListener, ForegroundUtils.Callback 
     TagService mNfcTagService;
     T4tNdefNfceeService mT4tNdefNfceeService;
     NfcAdapterService mNfcAdapter;
+
+    // 2by2 Additions for felica
+    FelicaBridge mFelicaBridge;
+
     NfcDtaService mNfcDtaService;
     RoutingTableParser mRoutingTableParser;
     boolean mIsDebugBuild;
@@ -1035,6 +1039,10 @@ public class NfcService implements DeviceHostListener, ForegroundUtils.Callback 
 
         mNfcTagService = new TagService();
         mNfcAdapter = new NfcAdapterService();
+
+        // 2by2 Additions for felica
+        mFelicaBridge = new FelicaBridge(this);
+
         mRoutingTableParser = mNfcInjector.getRoutingTableParser();
         mT4tNdefNfceeService = new T4tNdefNfceeService();
         Log.i(TAG, "Starting NFC service");
@@ -1195,6 +1203,9 @@ public class NfcService implements DeviceHostListener, ForegroundUtils.Callback 
 
         // Make sure this is only called when object construction is complete.
         mNfcInjector.getNfcManagerRegisterer().register(mNfcAdapter);
+
+        // 2by2 Additions for felica
+        mFelicaBridge.register();
 
         mIsAlwaysOnSupported =
             mContext.getResources().getBoolean(R.bool.nfcc_always_on_allowed);
@@ -5711,6 +5722,60 @@ public class NfcService implements DeviceHostListener, ForegroundUtils.Callback 
             }
 
         }
+    }
+
+    // 2by2 Additions for felica
+    void requestFelicaBridgeRouting() {
+        mHandler.post(() -> {
+            if (!isNfcEnabledOrShuttingDown()) {
+                Log.d(TAG, "FeliCa bridge routing skipped because NFC is not enabled");
+                return;
+            }
+            try {
+                applyRouting(true);
+            } catch (RuntimeException e) {
+                Log.e(TAG, "FeliCa bridge routing failed", e);
+            }
+        });
+    }
+
+    boolean requestFelicaBridgeRoutingAndWait(long timeoutMs) {
+        if (Looper.myLooper() == mHandler.getLooper()) {
+            try {
+                applyRouting(true);
+                return true;
+            } catch (RuntimeException e) {
+                Log.e(TAG, "FeliCa bridge routing failed", e);
+                return false;
+            }
+        }
+
+        CountDownLatch latch = new CountDownLatch(1);
+        boolean[] success = new boolean[] {false};
+        mHandler.post(() -> {
+            try {
+                if (!isNfcEnabledOrShuttingDown()) {
+                    Log.d(TAG, "FeliCa bridge routing skipped because NFC is not enabled");
+                    return;
+                }
+                applyRouting(true);
+                success[0] = true;
+            } catch (RuntimeException e) {
+                Log.e(TAG, "FeliCa bridge routing failed", e);
+            } finally {
+                latch.countDown();
+            }
+        });
+        try {
+            if (!latch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+                Log.w(TAG, "FeliCa bridge routing timed out");
+                return false;
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+        return success[0];
     }
 
 }
