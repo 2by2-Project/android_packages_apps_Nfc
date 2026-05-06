@@ -28,6 +28,9 @@ final class FelicaBrokerService extends INfcFelicaBroker.Stub {
     private static final int ERROR_INVALID_PARAM = -10;
     private static final int ERROR_BUSY = -11;
     private static final int ERROR_NOT_AVAILABLE = -18;
+    private static final int WARMUP_TRANSCEIVE_TIMEOUT_MS = 1000;
+    private static final byte[] WARMUP_POLLING_COMMAND =
+            new byte[] {0x06, 0x00, (byte) 0xFF, (byte) 0xFF, 0x00, 0x00};
 
     private final FelicaBridge mBridge;
     private final NativeFelicaSe mNativeFelicaSe = new NativeFelicaSe();
@@ -142,8 +145,7 @@ final class FelicaBrokerService extends INfcFelicaBroker.Stub {
     @Override
     public boolean enable() {
         Log.i(TAG, "enable");
-        mBridge.requestRouting();
-        return true;
+        return warmupSe();
     }
 
     @Override
@@ -166,14 +168,50 @@ final class FelicaBrokerService extends INfcFelicaBroker.Stub {
     @Override
     public boolean setRwP2pMode(boolean enabled) {
         Log.i(TAG, "setRwP2pMode enabled=" + enabled);
-        mBridge.requestRouting();
-        return true;
+        return enabled ? warmupSe() : mBridge.prepareRoutingAndWait();
     }
 
     @Override
     public void prepareSwitchedOffState() {
         Log.i(TAG, "prepareSwitchedOffState");
         mBridge.requestRouting();
+    }
+
+    boolean warmupSe() {
+        synchronized (mBridge) {
+            if (!mBridge.isNfcEnabled()) {
+                Log.w(TAG, "warmupSE skipped: NFC is not enabled");
+                return false;
+            }
+            if (!mSeSessions.isEmpty()) {
+                Log.i(TAG, "warmupSE skipped: SE session already open");
+                return true;
+            }
+        }
+
+        if (!mBridge.setActiveAndWait(true)) {
+            mBridge.setActive(false);
+            Log.w(TAG, "warmupSE failed: bridge routing failed");
+            return false;
+        }
+
+        int handle = mNativeFelicaSe.open();
+        if (handle < 0) {
+            mBridge.setActive(false);
+            Log.w(TAG, "warmupSE native open failed error=" + handle);
+            return false;
+        }
+
+        int[] error = new int[] {ERROR_FAILED};
+        byte[] response = mNativeFelicaSe.transceive(
+                handle, WARMUP_POLLING_COMMAND, WARMUP_TRANSCEIVE_TIMEOUT_MS, error);
+        int closeResult = mNativeFelicaSe.close(handle);
+        mBridge.setActive(false);
+
+        Log.i(TAG, "warmupSE completed handle=" + handle
+                + " responseLen=" + (response != null ? response.length : -1)
+                + " error=" + error[0] + " closeResult=" + closeResult);
+        return error[0] == ERROR_NONE;
     }
 
     private Bundle open(String kind, Map<Integer, Session> sessions, IBinder token, boolean route) {

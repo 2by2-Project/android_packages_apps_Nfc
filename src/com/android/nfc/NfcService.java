@@ -1748,6 +1748,9 @@ public class NfcService implements DeviceHostListener, ForegroundUtils.Callback 
                 onPreferredPaymentChanged(NfcAdapter.PREFERRED_PAYMENT_LOADED);
             }
 
+            // 2by2 Additions for felica
+            mFelicaBridge.onNfcEnabled();
+
             if (mInProvisionMode) {
                 mScreenState = mScreenStateHelper.checkScreenStateProvisionMode();
             } else {

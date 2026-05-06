@@ -14,6 +14,7 @@ final class FelicaBridge {
     private final NfcService mService;
     private final FelicaBrokerService mBroker;
     private int mOpenCount;
+    private boolean mWarmupRunning;
 
     FelicaBridge(NfcService service) {
         mService = service;
@@ -40,8 +41,34 @@ final class FelicaBridge {
         return requestRoutingAndWait();
     }
 
+    boolean prepareRoutingAndWait() {
+        return requestRoutingAndWait();
+    }
+
     void requestRouting() {
         mService.requestFelicaBridgeRouting();
+    }
+
+    void onNfcEnabled() {
+        synchronized (this) {
+            if (mWarmupRunning) {
+                return;
+            }
+            mWarmupRunning = true;
+        }
+        new Thread(() -> {
+            try {
+                if (mBroker.warmupSe()) {
+                    Log.i(TAG, "NFC state-on warmup succeeded");
+                } else {
+                    Log.w(TAG, "NFC state-on warmup failed");
+                }
+            } finally {
+                synchronized (FelicaBridge.this) {
+                    mWarmupRunning = false;
+                }
+            }
+        }, "FelicaNfcStateWarmup").start();
     }
 
     private int updateOpenCount(boolean active) {
